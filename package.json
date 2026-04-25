@@ -1,0 +1,53 @@
+{
+  "name": "@mukundakatta/agentguard",
+  "version": "0.1.0",
+  "description": "Network egress firewall for AI agents — declarative allowlist of domains an agent's tools can fetch, throws or 403s on violation. Zero dependencies.",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test 'test/**/*.test.js'",
+    "test:examples": "node --test 'examples/**/*.test.js'",
+    "test:all": "node --test 'test/**/*.test.js' 'examples/**/*.test.js'"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "llm",
+    "firewall",
+    "security",
+    "policy",
+    "allowlist",
+    "egress",
+    "network",
+    "tool-use",
+    "anthropic",
+    "openai",
+    "mcp",
+    "prompt-injection"
+  ],
+  "author": "MukundaKatta",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MukundaKatta/agentguard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MukundaKatta/agentguard/issues"
+  },
+  "homepage": "https://github.com/MukundaKatta/agentguard#readme"
+}
