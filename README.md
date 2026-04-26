@@ -185,6 +185,18 @@ const policy({
 
 The right framing: `agentguard` is a *seatbelt for tool-use*. It catches accidents and most opportunistic attacks. Pair it with sandboxing, secret management, and auth for defense-in-depth.
 
+## Sibling libraries
+
+Part of the agent reliability stack — all `@mukundakatta/*` scoped, all zero-dep:
+
+- [`@mukundakatta/agentfit`](https://www.npmjs.com/package/@mukundakatta/agentfit) — fit messages to budget. *Fit it.*
+- [`@mukundakatta/agentsnap`](https://www.npmjs.com/package/@mukundakatta/agentsnap) — snapshot tests for tool-call traces. *Test it.*
+- **`@mukundakatta/agentguard`** — network egress firewall. *Sandbox it.* (this)
+- [`@mukundakatta/agentvet`](https://www.npmjs.com/package/@mukundakatta/agentvet) — tool-arg validator. *Vet it.*
+- [`@mukundakatta/agentcast`](https://www.npmjs.com/package/@mukundakatta/agentcast) — structured output enforcer. *Validate it.*
+
+Natural pipeline: **fit → guard → snap → vet → cast**.
+
 ## Status
 
 v0.1.0 — initial release. Core API stable. TypeScript types included. 30/30 tests, CI on Node 20/22/24.
