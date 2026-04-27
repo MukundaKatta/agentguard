@@ -1,10 +1,13 @@
 {
   "name": "@mukundakatta/agentguard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Network egress firewall for AI agents — declarative allowlist of domains an agent's tools can fetch, throws or 403s on violation. Zero dependencies.",
   "type": "module",
   "main": "src/index.js",
   "types": "./src/index.d.ts",
+  "bin": {
+    "agentguard": "src/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./src/index.d.ts",

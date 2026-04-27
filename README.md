@@ -177,6 +177,25 @@ const policy({
 // see the rejection and recover, rather than crashing.
 ```
 
+## CLI
+
+`@mukundakatta/agentguard` ships an `agentguard` binary for one-off URL checks and CI-time policy validation:
+
+```bash
+# Validate a policy file before deploying it
+npx -p @mukundakatta/agentguard agentguard validate-policy --policy policy.json
+
+# Check a single URL against a policy (exit 1 if blocked)
+npx -p @mukundakatta/agentguard agentguard check https://api.openai.com/v1/chat \
+  --policy policy.json --method POST
+
+# Bulk-check URLs from a file (or stdin via `-`); exits 1 if any are denied
+cat candidate-urls.txt | npx -p @mukundakatta/agentguard agentguard check-batch - \
+  --policy policy.json
+```
+
+Output is one JSON object per check on stdout (use `--pretty` for indented). Exit code is `0` when allowed/valid, `1` when denied/invalid, `2` on usage errors. Run `agentguard --help` for the full subcommand reference.
+
 ## What this is not
 
 - **Not a sandbox.** Determined code can monkey-patch around `fetch` itself or use other transports (`net.connect`, `dgram`, raw HTTP/2). For hard isolation, use OS-level network namespaces, Linux `iptables`, k8s `NetworkPolicy`, or Firecracker microVMs (e2b, etc).
