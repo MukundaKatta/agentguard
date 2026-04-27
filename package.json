@@ -52,9 +52,5 @@
   "bugs": {
     "url": "https://github.com/MukundaKatta/agentguard/issues"
   },
-  "homepage": "https://github.com/MukundaKatta/agentguard#readme",
-  "funding": [
-    "https://github.com/sponsors/MukundaKatta",
-    "https://agent-stack.dev"
-  ]
+  "homepage": "https://github.com/MukundaKatta/agentguard#readme"
 }
