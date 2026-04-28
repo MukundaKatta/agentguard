@@ -1,5 +1,11 @@
 # agentguard
 
+[![npm version](https://img.shields.io/npm/v/@mukundakatta/agentguard.svg)](https://www.npmjs.com/package/@mukundakatta/agentguard)
+[![npm downloads](https://img.shields.io/npm/dm/@mukundakatta/agentguard.svg)](https://www.npmjs.com/package/@mukundakatta/agentguard)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Node](https://img.shields.io/node/v/@mukundakatta/agentguard.svg)](https://nodejs.org)
+[![Tests](https://img.shields.io/badge/tests-47%2F47-brightgreen.svg)](./test)
+
 **Network egress firewall for AI agents.** Declarative allowlist of domains an agent's tools can fetch; throws (or returns a 403) on anything else. Zero runtime dependencies. Drop it around any code that calls `fetch()`, including SDK clients you don't control.
 
 ```bash
@@ -168,13 +174,16 @@ await firewall(webPolicy, () => researchAgent.run(query));
 ### `block` mode: 403 instead of throw
 
 ```js
-const policy({
+const blockingPolicy = policy({
   network: { allow: ['api.openai.com'] },
   violations: 'block',
 });
-// blocked requests now return a synthetic 403 Response with
-// `x-agentguard-block: 1` headers. Useful when you want the agent to
-// see the rejection and recover, rather than crashing.
+
+await firewall(blockingPolicy, async () => {
+  // blocked requests now return a synthetic 403 Response with
+  // `x-agentguard-block: 1` headers. Useful when you want the agent to
+  // see the rejection and recover, rather than crashing.
+});
 ```
 
 ## CLI
@@ -218,7 +227,7 @@ Natural pipeline: **fit → guard → snap → vet → cast**.
 
 ## Status
 
-v0.1.0 — initial release. Core API stable. TypeScript types included. 30/30 tests, CI on Node 20/22/24.
+v0.1.2 — security fix release. Core API stable. TypeScript types included. 47/47 tests, CI on Node 20/22/24.
 
 **v0.2 plans** (post-real-world-feedback):
 - Per-tool rate limits (e.g. "search_web: 10/min")
