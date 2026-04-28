@@ -137,13 +137,25 @@ export function check(policy, url, init = {}) {
 }
 
 function matchHost(host, pattern) {
-  const h = host.toLowerCase();
-  if (pattern === '*') return true;
-  if (pattern.startsWith('*.')) {
-    const suffix = pattern.slice(2);
+  // URL.hostname keeps the brackets on IPv6 literals (e.g. "[::1]").
+  // Normalize both sides so callers can write the deny rule with or
+  // without brackets and IPv6 SSRF targets are still matched.
+  const h = stripIPv6Brackets(host).toLowerCase();
+  const p = stripIPv6Brackets(pattern).toLowerCase();
+  if (p === '*') return true;
+  if (p.startsWith('*.')) {
+    const suffix = p.slice(2);
     return h === suffix || h.endsWith('.' + suffix);
   }
-  return h === pattern;
+  return h === p;
+}
+
+function stripIPv6Brackets(s) {
+  if (typeof s !== 'string') return s;
+  if (s.length >= 2 && s.startsWith('[') && s.endsWith(']')) {
+    return s.slice(1, -1);
+  }
+  return s;
 }
 
 /**
