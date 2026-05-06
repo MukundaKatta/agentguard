@@ -6,6 +6,8 @@
 [![Node](https://img.shields.io/node/v/@mukundakatta/agentguard.svg)](https://nodejs.org)
 [![Tests](https://img.shields.io/badge/tests-47%2F47-brightgreen.svg)](./test)
 
+> 📖 Part of the **[agent-stack](https://dev.to/mukundakatta/i-built-5-tiny-libraries-to-stop-my-ai-agents-from-misbehaving-in-production-3oni)** — 5 tiny libraries to stop AI agents from misbehaving in production.
+
 **Network egress firewall for AI agents.** Declarative allowlist of domains an agent's tools can fetch; throws (or returns a 403) on anything else. Zero runtime dependencies. Drop it around any code that calls `fetch()`, including SDK clients you don't control.
 
 ```bash
