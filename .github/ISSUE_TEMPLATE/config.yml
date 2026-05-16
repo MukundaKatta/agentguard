@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔴 Policy bypass / firewall escape (security)
+    url: https://github.com/MukundaKatta/agentguard/security/advisories/new
+    about: agentguard is itself a security primitive. If you found a way to bypass the allowlist (host pattern that misses, normalization gap, race during firewall setup, env-var injection of the allowlist, etc.) please use GitHub's private vulnerability reporting instead of a public issue.
+  - name: General security policy
+    url: https://github.com/MukundaKatta/agentguard/blob/main/SECURITY.md
+    about: The full threat-model scope, what is in-scope vs. out-of-scope, and the disclosure timeline.
+  - name: Other agent-stack libraries
+    url: https://github.com/MukundaKatta/agent-stack
+    about: For agentfit / agentsnap / agentcast / agentvet / agenttrace / agentbudget, the canonical landing page lists all six and points to each repo.
