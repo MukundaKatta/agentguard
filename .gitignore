@@ -4,8 +4,12 @@ node_modules/
 .env
 .env.*
 coverage/
+.nyc_output/
 dist/
 *.tgz
+
+# OS junk
+Thumbs.db
 .idea/
 .vscode/
 # Sub-agent worktrees (sandbox routed them here)
