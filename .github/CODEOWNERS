@@ -1,0 +1,11 @@
+# Default owner for everything in this repo. Used by GitHub to auto-request
+# review on PRs and to define the contact point for security disclosures.
+* @MukundaKatta
+
+# Security-critical files: any change here should get extra scrutiny.
+# agentguard is itself a security primitive — the policy engine and
+# fetch wrapper ARE the product.
+/src/policy.js      @MukundaKatta
+/src/firewall.js    @MukundaKatta
+/src/violations.js  @MukundaKatta
+/SECURITY.md        @MukundaKatta

