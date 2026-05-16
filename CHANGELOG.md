@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+Production-polish branch (this PR): adds `CODE_OF_CONDUCT.md`, `CODEOWNERS` with security-critical paths called out, Dependabot config, issue + PR templates (with a security-routing block), release workflow with npm provenance OIDC + zero-runtime-deps gate, expanded CI (macOS + Windows spot-checks, coverage gate that runs the existing thresholds, `npm pack` content check, and a deny-by-default smoke that asserts the firewall actually blocks a fetch to an un-allowlisted host). README gets a CI badge + runtime-deps=0 badge. No source changes; the policy engine and fetch wrapper are untouched.
+
 ## [0.1.2] — 2026-04-28
 
 ### Fixed
